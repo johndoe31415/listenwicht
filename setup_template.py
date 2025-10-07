@@ -24,7 +24,7 @@ setuptools.setup(
 	},
 	include_package_data = True,
 	classifiers = [
-		"Development Status :: 4 - Production/Beta",
+		"Development Status :: 4 - Beta",
 		"Intended Audience :: Developers",
 		"License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
 		"Programming Language :: Python :: 3",
