@@ -16,7 +16,7 @@ setuptools.setup(
 	url = "https://github.com/johndoe31415/listenwicht",
 	download_url = "https://github.com/johndoe31415/listenwicht/archive/v0.0.2rc0.tar.gz",
 	keywords = [ "mailing", "list" ],
-	install_requires = [ "mailcoil>=0.0.7" ],
+	install_requires = [ "mailcoil>=0.0.8" ],
 	entry_points = {
 		"console_scripts": [
 			"listenwicht = listenwicht.__main__:main"
