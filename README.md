@@ -169,11 +169,11 @@ actions are executed:
   - The recipients of the mail are all added as BCC.
   - The mail is sent via a SMTP connection to `127.0.0.1`.
 
-Note that the example contains a third version which is slightly different in
-that the `From` address equates to the mailing list address. This has the
-effect that any reply automatically goes to all participants of the mailing
-list. In contrast, a reply on the first or seconds list only goes to the
-original sender.
+Note that the example contains a third list which is slightly different in that
+the `Reply-To` address equates to the mailing list address. This has the effect
+that any reply automatically goes to all participants of the mailing list. In
+contrast, a reply on the first or seconds list only goes to the original
+sender.
 
 
 ## Usage: listenwicht setup
