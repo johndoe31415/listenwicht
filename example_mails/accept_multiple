@@ -1,0 +1,38 @@
+Return-Path: <joe@unauthorized-domain.com>
+X-Original-To: inf23cs1@my-mailserver.de
+Delivered-To: mailinglist@my-mailserver.de
+Authentication-Results: my-mailserver.de;
+	dkim=pass (2048-bit key; unprotected) header.d=unauthorized-domain.com header.i=@unauthorized-domain.com header.a=rsa-sha256 header.s=dkim202204 header.b=HI13neOW;
+	dkim-atps=neutral
+Received: from someserver.com (someserver.com [123.123.111.222])
+	by my-mailserver.de (Postfix) with ESMTPS id 72FC02D88417
+	for <inf23cs1@my-mailserver.de>; Tue,  7 Oct 2025 09:35:02 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=unauthorized-domain.com;
+	s=dkim202204; t=1759820187;
+	bh=pEmoSlam+zLIkO10mJep8jzzpRTu0ZKeAvCjxDCF81g=;
+	h=Date:From:Subject:To:From;
+	b=HI13neOWl89pv8gn2fQXQVUAa6AByRVEljpAQaa9imjdH96i7JTPCcCQ8i1R6g4tf
+	 Su8Cn2UCc4wEg/5w8vvjdp3X7UlCqrHzmi3nyoCrq9nqXm2dvFPUxlpL1OOR31YKPH
+	 uOKIpXFtfN9VVZm9IfizsOy6ma//ZPeJQXNv8VuJ8aO/yIRnn6TIqFgo/Pl23ivMy2
+	 P+AN8/gXEweStwKk19MhW07QXpBPCZN+bO7r9cJAqi7/3MRIjMpeBbWjk7BgnqpLga
+	 C5fnx+t6mQSSX2mup9Px0RhZKxYuPM1/d71sqZ+U2H0GOpgoWPnkX63iCtdbZn8S2a
+	 WeGnYgH2pSJWQ==
+Received: from [IPV6:2a00:111:22:33:44:55:66:7] (unknown [IPv6:2a00:111:22:33:44:55:66:7])
+	by someserver.com (Postfix) with ESMTPSA id D6D5226C5006
+	for <inf23cs1@my-mailserver.de>; Tue,  7 Oct 2025 08:56:27 +0200 (CEST)
+Message-ID: <f3d5079c-ba91-4f68-a887-dcaf21d792fc@unauthorized-domain.com>
+Date: Tue, 7 Oct 2025 08:56:27 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+Autocrypt: addr=joe@unauthorized-domain.com; keydata=
+ xsFNBGOQRRIBEADBDANX4HEMQMcP9/hbjF/eH42SIudbva9xXorQKw7NVmcfNjtQQSd97aIe
+ N22NxHKokf/SG7uhykZHtn+dAkEV30g3G+7677YPvnair/uoNZHmjGw2+T/NFpN03qyDCsg5
+ aZwlNxABZ5fB5u3lFtD+r2fDegoUFGl4bswI3SvRY+FG5UKE1QYpzNoVdsJKC+ONjcSCq8ZE
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Subject: This message is going to many lists
+From: Johannes Bauer <joe@allowed-users.de>
+To: inf23@my-mailserver.de
+
+This message should end up on a multiple lists

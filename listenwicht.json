@@ -1,0 +1,63 @@
+{
+	"bounces": {
+		"via": "smtp://127.0.0.1",
+		"from": [ "listenwicht Bounces", "mailinglist-bounce@my-mailserver.de" ],
+		"admin_email": "admin@my-mailserver.de"
+	},
+	"mailing_lists": [
+		{
+			"name": "23CS1",
+			"conditions": [
+				{ "condtype": "match-header", "key": "Message-ID", "regex": "<.*@listenwicht>", "invert": true },
+				{ "condtype": "match-address", "key": "To", "regex": ".*bounce.*", "invert": true },
+				{ "condtype": "match-address", "key": "To", "regex": "inf(23cs1|23cs|23)@.*" },
+				{ "condtype": "match-address", "key": "From", "regex": ".*@allowed-users.de", "error": "Your 'From' address is not authorized to post on the ${mailing_list_name} mailing list." }
+			],
+			"actions": [
+				{ "action": "remove-header", "key": [ "Autocrypt", "DKIM-Signature", "Reply-To", "Return-Path", "X-Original-To", "Delivered-To", "Authentication-Results" ] },
+				{ "action": "rename-header", "old": "From", "new": "Reply-To" },
+				{ "action": "set-address", "key": "From", "value": [ [ "My Mailing List", "mailinglist@my-mailserver.de" ] ] },
+				{ "action": "set-address", "key": "To", "value": [ [ "My Mailing List", "mailinglist@my-mailserver.de" ] ] },
+				{ "action": "set-header", "key": "List-Id", "value": "inf23cs1@my-mailserver.de" },
+				{ "action": "set-address", "key": "Bcc", "value": [ [ "Cee Ess One", "cs1@foobar.com"], [ "Next cs1 usr", "other@cs1.de" ] ] },
+				{ "action": "deliver", "via": "smtp://127.0.0.1" }
+			]
+		},
+		{
+			"name": "23CS2",
+			"conditions": [
+				{ "condtype": "match-header", "key": "Message-ID", "regex": "<.*@listenwicht>", "invert": true },
+				{ "condtype": "match-address", "key": "To", "regex": ".*bounce.*", "invert": true },
+				{ "condtype": "match-address", "key": "To", "regex": "inf(23cs2|23cs|23)@.*" },
+				{ "condtype": "match-address", "key": "From", "regex": ".*@allowed-users.de", "error": "Your 'From' address is not authorized to post on the ${mailing_list_name} mailing list." }
+			],
+			"actions": [
+				{ "action": "remove-header", "key": [ "Autocrypt", "DKIM-Signature", "Reply-To", "Return-Path", "X-Original-To", "Delivered-To", "Authentication-Results" ] },
+				{ "action": "rename-header", "old": "From", "new": "Reply-To" },
+				{ "action": "set-address", "key": "From", "value": [ [ "My Mailing List", "mailinglist@my-mailserver.de" ] ] },
+				{ "action": "set-address", "key": "To", "value": [ [ "My Mailing List", "mailinglist@my-mailserver.de" ] ] },
+				{ "action": "set-header", "key": "List-Id", "value": "inf23cs2@my-mailserver.de" },
+				{ "action": "set-address", "key": "Bcc", "value": [ [ "CS2 user", "cs2-user@foo.org"], [ "Other CS2 User", "cs2-user-2@invalid.com" ] ] },
+				{ "action": "deliver", "via": "smtp://127.0.0.1" }
+			]
+		},
+		{
+			"name": "SGL",
+			"conditions": [
+				{ "condtype": "match-header", "key": "Message-ID", "regex": "<.*@listenwicht>", "invert": true },
+				{ "condtype": "match-address", "key": "To", "regex": ".*bounce.*", "invert": true },
+				{ "condtype": "match-address", "key": "To", "regex": "inf-sgl@.*" },
+				{ "condtype": "match-address", "key": "From", "regex": ".*@allowed-users.de", "error": "Your 'From' address is not authorized to post on the ${mailing_list_name} mailing list." }
+			],
+			"actions": [
+				{ "action": "remove-header", "key": [ "Autocrypt", "DKIM-Signature", "Reply-To", "Return-Path", "X-Original-To", "Delivered-To", "Authentication-Results" ] },
+				{ "action": "set-address", "key": "Reply-To", "value": [ [ "My Mailing List", "inf-sgl@my-mailserver.de" ] ] },
+				{ "action": "set-address", "key": "From", "value": [ [ "My Mailing List", "mailinglist@my-mailserver.de" ] ] },
+				{ "action": "set-address", "key": "To", "value": [ [ "My Mailing List", "mailinglist@my-mailserver.de" ] ] },
+				{ "action": "set-header", "key": "List-Id", "value": "inf-sgl@my-mailserver.de" },
+				{ "action": "set-address", "key": "Bcc", "value": [ [ "Admin One", "admin1@foo.org"], [ "Admin Two", "admin2@bar.com" ] ] },
+				{ "action": "deliver", "via": "smtp://127.0.0.1" }
+			]
+		}
+	]
+}

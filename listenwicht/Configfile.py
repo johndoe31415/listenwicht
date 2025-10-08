@@ -38,5 +38,9 @@ class Configfile():
 		return self._config["dropoff"]
 
 	@property
-	def rules(self):
-		return self._config.get("rules", [ ])
+	def bounces(self):
+		return self._config["bounces"]
+
+	@property
+	def mailing_lists(self):
+		return self._config.get("mailing_lists", [ ])

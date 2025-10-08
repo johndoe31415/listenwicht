@@ -21,10 +21,7 @@
 
 import os
 import subprocess
-import mailcoil
 from .LWBaseAction import LWBaseAction
-from .ReceivedMail import ReceivedMail
-from .Enums import Processing
 from .BurstLimiter import BurstLimiter
 
 class ActionDaemon(LWBaseAction):
@@ -36,31 +33,19 @@ class ActionDaemon(LWBaseAction):
 	def newdir(self):
 		return os.path.realpath(self.args.maildir) + "/new"
 
-	def _process(self, filename: str):
-		rxmail = ReceivedMail.from_filename(filename)
-		for rule in self._mailproc.rules:
-			rxmail.reset()
-			for (procmail, via) in rule.execute_if_matched(rxmail):
-				print(f"Rule match {rule} for {filename} delivery via {via}")
-				serialized_mail = mailcoil.Email.serialize_from_email_message(procmail.mail)
-				dropoff = mailcoil.MailDropoff.parse_uri(via)
-				try:
-					self._burst_limiter.trigger()
-					dropoff.post(serialized_mail)
-					print(f"Successfully delivered via {via}")
-				except ConnectionRefusedError as e:
-					print(f"Unable to deliver mail via {via} -- {e.__class__.__name__}: {str(e)}")
-
 	def _process_spool_dir(self):
 		for filename in os.listdir(self.newdir):
 			new_filename = f"{self.newdir}/{filename}"
 			if not os.path.isfile(new_filename):
 				continue
 			cur_filename = f"{self.curdir}/{filename}"
-			self._process(new_filename)
-			os.rename(new_filename, cur_filename)
+			try:
+				self._process_received_mail(new_filename)
+			finally:
+				os.rename(new_filename, cur_filename)
 
 	def run(self):
+		self._deliver_processed_mail = True
 		self._burst_limiter = BurstLimiter(event_count = self._config.burst["event_count"], window_secs = self._config.burst["window_secs"])
 
 		if not os.path.isdir(self.newdir):
@@ -68,6 +53,7 @@ class ActionDaemon(LWBaseAction):
 		if not os.path.isdir(self.curdir):
 			raise NotADirectoryError(self.curdir)
 
+		print(f"Started listenwicht daemon, watching spool directory {self.newdir} for incoming messages")
 		self._process_spool_dir()
 		while True:
 			subprocess.run([ "inotifywait", "--event", "CREATE,MOVED_TO", self.newdir ], check = False, stderr = subprocess.DEVNULL, stdout = subprocess.DEVNULL)

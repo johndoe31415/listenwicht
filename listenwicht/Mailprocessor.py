@@ -21,6 +21,7 @@
 
 import re
 import email.utils
+import dataclasses
 from .Enums import ConditionType, Action, Processing
 
 class MatchCondition():
@@ -38,7 +39,7 @@ class MatchCondition():
 	def _boolean(self, value: bool):
 		return value ^ self.invert
 
-	def matches(self, mail: "ReceivedMail", verbose: bool = False):
+	def _matches(self, mail: "ReceivedMail", verbose: bool = False):
 		if verbose:
 			print(f"Matching condition: {self}")
 		match self._cond_type:
@@ -55,6 +56,13 @@ class MatchCondition():
 
 			case _:
 				raise NotImplementedError(self._cond_type)
+
+	def matches(self, mail: "ReceivedMail", verbose: bool = False):
+		does_match = self._matches(mail, verbose = verbose)
+		if (not does_match) and ("error" in self._cond):
+			return (does_match, self._cond["error"])
+		else:
+			return (does_match, None)
 
 	def __repr__(self):
 		return f"{self._cond_type.name} field \"{self._cond['key']}\" {'does NOT match' if self.invert else 'matches'} regex \"{self._cond['regex']}\""
@@ -104,15 +112,50 @@ class RuleAction():
 	def __repr__(self):
 		return f"{self._action_type.name}"
 
-class Rule():
-	def __init__(self, rule: dict):
-		self._conditions = [ MatchCondition(cond) for cond in rule.get("conditions", [ ]) ]
-		self._actions = [ RuleAction(action) for action in rule.get("actions", [ ]) ]
+@dataclasses.dataclass
+class ConditionMatchResult():
+	all_conditions_pass: bool
+	match_error: str | None = None
 
-	def matches(self, mail: "ReceivedMail", verbose: bool = False):
-		return all(condition.matches(mail, verbose = verbose) for condition in self._conditions)
+class MailingList():
+	def __init__(self, mailing_list: dict):
+		self._name = mailing_list["name"]
+		self._variables = {
+			"mailing_list_name": self._name,
+		}
+		self._variables.update(mailing_list.get("variables", { }))
+		mailing_list = self._substitute(mailing_list, self._variables)
+		self._conditions = [ MatchCondition(cond) for cond in mailing_list.get("conditions", [ ]) ]
+		self._actions = [ RuleAction(action) for action in mailing_list.get("actions", [ ]) ]
 
-	def execute_actions(self, mail: "ReceivedMail"):
+	def _substitute(self, obj, replacements: dict):
+		if isinstance(obj, str):
+			for (repl_from, repl_to) in sorted(replacements.items()):
+				obj = obj.replace(f"${{{repl_from}}}", repl_to)
+			return obj
+		elif isinstance(obj, list):
+			return [ self._substitute(item, replacements) for item in obj ]
+		elif isinstance(obj, dict):
+			return { self._substitute(key, replacements): self._substitute(value, replacements) for (key, value) in obj.items() }
+		else:
+			return obj
+
+	@property
+	def name(self):
+		return self._name
+
+	def matches(self, mail: "ReceivedMail", verbose: bool = False) -> ConditionMatchResult:
+		condition_match_result = ConditionMatchResult(all_conditions_pass = True)
+
+		for condition in self._conditions:
+			(match_result, match_error) = condition.matches(mail, verbose = verbose)
+			condition_match_result.all_conditions_pass = condition_match_result.all_conditions_pass and match_result
+			condition_match_result.match_error = match_error
+			if not match_result:
+				break
+		return condition_match_result
+
+	def execute_actions(self, mail: "ReceivedMail") -> tuple["ReceivedMail", str]:
 		for action in self._actions:
 			action_result = action.execute(mail)
 			if action_result == Processing.Continue:
@@ -120,21 +163,16 @@ class Rule():
 			elif action_result == Processing.Deliver:
 				yield (mail, action.via)
 
-	def execute_if_matched(self, mail: "ReceivedMail"):
-		if not self.matches(mail):
-			return False
-		yield from self.execute_actions(mail)
-
 	def __str__(self):
 		return f"Cond={' && '.join(f'({cond})' for cond in self._conditions)} Act={str(self._actions)}"
 
 class Mailprocessor():
-	def __init__(self, rules: list):
-		self._rules = [ Rule(rule) for rule in rules ]
+	def __init__(self, mailing_lists: list[dict]):
+		self._mailing_lists = [ MailingList(mailing_list) for mailing_list in mailing_lists ]
 
 	@property
-	def rules(self):
-		return iter(self._rules)
+	def mailing_lists(self):
+		return iter(self._mailing_lists)
 
 	def __str__(self):
-		return f"{len(self._rules)} rules: {', '.join(str(rule) for rule in self._rules)}"
+		return f"{len(self._mailing_lists)} mailing_lists: {', '.join(str(mailing_list) for mailing_list in self._mailing_lists)}"

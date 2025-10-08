@@ -19,30 +19,10 @@
 #
 #	Johannes Bauer <JohannesBauer@gmx.de>
 
-import mailcoil
 from .LWBaseAction import LWBaseAction
-from .ReceivedMail import ReceivedMail
-from .Enums import Processing
 
 class ActionDisplay(LWBaseAction):
-	def _process(self, filename: str):
-		rxmail = ReceivedMail.from_filename(filename)
-		print(f"Processing mail in {filename}")
-		for rule in self._mailproc.rules:
-			rxmail.reset()
-			is_match = rule.matches(rxmail, verbose = True)
-			print(f"Condition result: {'matched' if is_match else 'NOT matched'} for rule {rule}")
-			if is_match:
-				for (procmail, via) in rule.execute_actions(rxmail):
-					serialized_mail = mailcoil.Email.serialize_from_email_message(procmail.mail)
-					if self.args.deliver_mail:
-						print(f"Rule match requests delivery, actually trying to deliver mail via {via}")
-						dropoff = mailcoil.MailDropoff.parse_uri(via)
-						dropoff.post(serialized_mail)
-					else:
-						print("Rule match requests delivery, but only printing mail:")
-						print(serialized_mail.content)
-
 	def run(self):
+		self._received_mail_parsing_loglvl = 2
 		for mailfile in self.args.mailfile:
-			self._process(mailfile)
+			self._process_received_mail(mailfile)
