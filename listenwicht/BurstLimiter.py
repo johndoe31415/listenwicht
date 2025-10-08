@@ -68,6 +68,7 @@ class BurstLimiter():
 		self._bucket_fill -= 1
 
 if __name__ == "__main__":
+	import random
 	bl = BurstLimiter(10, 1)
 	t0 = time.monotonic()
 	last = t0
@@ -78,4 +79,7 @@ if __name__ == "__main__":
 		reldiff = now - last
 		print(i, i / absdiff, reldiff)
 		last = now
-#		time.sleep(1)
+		if i < 50:
+			time.sleep(random.random() / 20)
+		elif i == 50:
+			time.sleep(3)

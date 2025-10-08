@@ -27,6 +27,13 @@ class Configfile():
 			self._config = json.load(f)
 
 	@property
+	def burst(self):
+		return self._config.get("burst", {
+			"event_count": 20,
+			"window_secs": 1200,
+		})
+
+	@property
 	def dropoff(self):
 		return self._config["dropoff"]
 

@@ -25,6 +25,7 @@ import mailcoil
 from .LWBaseAction import LWBaseAction
 from .ReceivedMail import ReceivedMail
 from .Enums import Processing
+from .BurstLimiter import BurstLimiter
 
 class ActionDaemon(LWBaseAction):
 	@property
@@ -44,6 +45,7 @@ class ActionDaemon(LWBaseAction):
 				serialized_mail = mailcoil.Email.serialize_from_email_message(procmail.mail)
 				dropoff = mailcoil.MailDropoff.parse_uri(via)
 				try:
+					self._burst_limiter.trigger()
 					dropoff.post(serialized_mail)
 					print(f"Successfully delivered via {via}")
 				except ConnectionRefusedError as e:
@@ -59,6 +61,8 @@ class ActionDaemon(LWBaseAction):
 			os.rename(new_filename, cur_filename)
 
 	def run(self):
+		self._burst_limiter = BurstLimiter(event_count = self._config.burst["event_count"], window_secs = self._config.burst["window_secs"])
+
 		if not os.path.isdir(self.newdir):
 			raise NotADirectoryError(self.newdir)
 		if not os.path.isdir(self.curdir):

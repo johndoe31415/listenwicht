@@ -126,7 +126,9 @@ all rules. If all conditions of a rule apply, the actions are executed.
 The first rule checks that the `Message-ID` header is *not* ending in
 `@listenwicht>`, which may prevent mail loops. The second condition verifies
 that the `From` address is valid (anything from `allowed-users.de` may post to
-the list).
+the list). Note that this requires your ingress email treatment to be rigid
+(e.g., ensure that ingress mail is not delivered on softfail or that the SPF
+record requires hardfail or that you have alternative authentication in place).
 
 The last condition of the first rule verifies that the user of the `To` address
 is either `inf23cs1`, `inf23cs`, or `inf23`. Note that the last condition of
@@ -143,7 +145,7 @@ When a mailing list is triggered, this is what happens:
   - The `From` header field is rewritten to `Reply-To`. Anything that was
     previously a `From` now is a `Reply-To`.
   - The `From` header field is set to `mailinglist@my-mailserver.de` (which is
-    SPF-legal)
+    a valid address that we are allowed to send mail from)
   - The `To` header field is set to that same value.
   - A `List-Id` header field is added
   - The recipients of the mail are all added as BCC.
