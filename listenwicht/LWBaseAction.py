@@ -43,7 +43,7 @@ class LWBaseAction(BaseAction):
 	def _process_received_mail(self, filename: str):
 		rxmail = ReceivedMail.from_filename(filename)
 		original_msg = mailcoil.Email.serialize_from_email_message(rxmail.mail)
-		self._debug_print(2, f"Processing mail in {filename}")
+		self._debug_print(1, f"Processing mail in {filename}")
 		errors = [ ]
 		successful_delivery_count = 0
 		for mailing_list in self._mailproc.mailing_lists:
